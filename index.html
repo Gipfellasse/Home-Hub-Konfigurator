@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Home Hub — Deine KI. Deine Daten. Dein Zuhause.</title>
+<meta name="description" content="Lokale KI-Assistenten für zu Hause. Deine Daten verlassen nie dein Zuhause. Jetzt dein Home Hub konfigurieren.">
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  :root {
+    --navy: #0b2447; --navy-2: #123262; --navy-3: #19407a;
+    --blue: #2563eb; --blue-h: #1d4ed8; --sky: #dbeafe;
+    --ink: #0f172a; --muted: #475569; --line: #dbe3ee;
+    --bg: #ffffff; --soft: #f3f7fc; --ok: #15803d; --warn: #b45309;
+    --radius: 16px; --shadow: 0 10px 30px rgba(11,36,71,.10);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--ink); line-height: 1.6; }
+  img { max-width: 100%; }
+  h1, h2, h3 { line-height: 1.2; letter-spacing: -.02em; }
+  h2 { font-size: clamp(1.6rem, 3.5vw, 2.4rem); color: var(--navy); }
+  .section { padding: clamp(48px, 7vw, 88px) 18px; }
+  .section.alt { background: var(--soft); }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  .lead { color: var(--muted); font-size: 1.08rem; max-width: 640px; margin-top: 10px; }
+  .center { text-align: center; }
+  .center .lead { margin-left: auto; margin-right: auto; }
+
+  a.skip { position: absolute; left: -9999px; top: 0; background: var(--navy); color: #fff; padding: 10px 16px; z-index: 200; border-radius: 0 0 10px 0; }
+  a.skip:focus { left: 0; }
+  :focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; border-radius: 6px; }
+
+  nav.topbar { position: sticky; top: 0; z-index: 50; background: rgba(255,255,255,.92); backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line); padding: 10px 18px; display: flex; align-items: center; gap: 18px; }
+  .logo { font-weight: 800; font-size: 1.15rem; color: var(--navy); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+  .logo .dot { width: 12px; height: 12px; border-radius: 50%; background: linear-gradient(135deg, var(--blue), #60a5fa); }
+  .navlinks { display: flex; gap: 4px; margin-left: auto; flex-wrap: wrap; }
+  .navlinks a { color: var(--muted); text-decoration: none; font-weight: 600; font-size: .92rem; padding: 8px 12px; border-radius: 8px; }
+  .navlinks a:hover { color: var(--navy); background: var(--soft); }
+
+  .hero { background: linear-gradient(160deg, var(--navy) 0%, var(--navy-2) 55%, var(--navy-3) 100%); color: #fff; overflow: hidden; }
+  .hero .wrap { display: grid; grid-template-columns: 1.1fr .9fr; gap: 40px; align-items: center; padding: clamp(56px, 8vw, 100px) 0; }
+  .hero h1 { font-size: clamp(2.1rem, 5vw, 3.4rem); font-weight: 800; }
+  .hero h1 span { color: #7db4ff; }
+  .hero p.sub { color: #c9d8f2; font-size: 1.15rem; margin-top: 14px; max-width: 520px; }
+  .badges { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
+  .badge { background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.22); color: #e6eefc;
+    padding: 7px 14px; border-radius: 999px; font-size: .85rem; font-weight: 600; }
+  .cta-row { display: flex; gap: 14px; margin-top: 28px; flex-wrap: wrap; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: none; cursor: pointer;
+    font-weight: 700; font-size: 1rem; border-radius: 12px; padding: 15px 26px; text-decoration: none;
+    transition: transform .15s ease, background .15s ease; min-height: 48px; }
+  .btn:active { transform: scale(.98); }
+  .btn-primary { background: var(--blue); color: #fff; }
+  .btn-primary:hover { background: var(--blue-h); }
+  .btn-ghost { background: rgba(255,255,255,.08); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+  .btn-ghost:hover { background: rgba(255,255,255,.16); }
+  .btn[disabled] { opacity: .45; cursor: not-allowed; }
+  .hero-art { display: flex; justify-content: center; }
+  .device { width: min(320px, 80%); aspect-ratio: 3/4; border-radius: 28px; position: relative;
+    background: linear-gradient(165deg, #1c3a6e, #0d1f3f); border: 1px solid rgba(255,255,255,.18);
+    box-shadow: 0 30px 60px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.15); }
+  .device .led { position: absolute; top: 26px; left: 50%; transform: translateX(-50%); width: 54px; height: 10px;
+    border-radius: 999px; background: #7db4ff; box-shadow: 0 0 18px #7db4ff; animation: pulse 2.6s ease-in-out infinite; }
+  .device .face { position: absolute; inset: 60px 26px 26px; border-radius: 16px;
+    background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.02)); border: 1px solid rgba(255,255,255,.10); }
+  .device .face .wave { position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; align-items: flex-end; height: 26px; }
+  .device .face .wave i { width: 5px; border-radius: 3px; background: #7db4ff; animation: wave 1.2s ease-in-out infinite; }
+  .device .face .wave i:nth-child(1) { height: 30%; animation-delay: 0s; }
+  .device .face .wave i:nth-child(2) { height: 70%; animation-delay: .15s; }
+  .device .face .wave i:nth-child(3) { height: 100%; animation-delay: .3s; }
+  .device .face .wave i:nth-child(4) { height: 60%; animation-delay: .45s; }
+  .device .face .wave i:nth-child(5) { height: 35%; animation-delay: .6s; }
+  @keyframes pulse { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+  @keyframes wave { 0%, 100% { transform: scaleY(.5); } 50% { transform: scaleY(1); } }
+
+  .stepnav { display: flex; gap: 6px; flex-wrap: wrap; margin: 26px 0 34px; }
+  .stepnav button { border: 1px solid var(--line); background: #fff; color: var(--muted); font-weight: 600;
+    font-size: .88rem; padding: 9px 14px; border-radius: 999px; cursor: pointer; min-height: 44px; }
+  .stepnav button.active { background: var(--navy); border-color: var(--navy); color: #fff; }
+  .stepnav button.done { border-color: var(--ok); color: var(--ok); }
+
+  .step { margin-bottom: 46px; scroll-margin-top: 90px; }
+  .step > h3 { font-size: 1.3rem; color: var(--navy); display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+  .stepnum { flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%; background: var(--navy); color: #fff;
+    display: inline-flex; align-items: center; justify-content: center; font-size: .95rem; font-weight: 800; }
+  .step .hint { color: var(--muted); font-size: .95rem; margin-bottom: 18px; }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .card { position: relative; text-align: left; background: #fff; border: 2px solid var(--line); border-radius: var(--radius);
+    padding: 22px; cursor: pointer; font: inherit; transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease; }
+  .card:hover { border-color: #9db8dd; box-shadow: var(--shadow); transform: translateY(-2px); }
+  .card[aria-checked="true"] { border-color: var(--blue); box-shadow: 0 0 0 4px rgba(37,99,235,.12); }
+  .card[aria-checked="true"]::after { content: "✓"; position: absolute; top: 14px; right: 14px; width: 26px; height: 26px;
+    border-radius: 50%; background: var(--blue); color: #fff; display: flex; align-items: center; justify-content: center; font-size: .85rem; font-weight: 800; }
+  .card h4 { font-size: 1.2rem; color: var(--navy); }
+  .card .for { color: var(--blue); font-weight: 700; font-size: .88rem; margin: 3px 0 12px; }
+  .card ul { list-style: none; margin-bottom: 14px; }
+  .card li { color: var(--muted); font-size: .92rem; padding: 3px 0 3px 24px; position: relative; }
+  .card li::before { content: "✓"; position: absolute; left: 0; color: var(--ok); font-weight: 800; }
+  .card .price { font-size: 1.25rem; font-weight: 800; color: var(--navy); }
+  .card .price small { font-weight: 600; color: var(--muted); font-size: .82rem; }
+
+  .optgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+  .opt { text-align: left; background: #fff; border: 2px solid var(--line); border-radius: 14px; padding: 16px 18px;
+    cursor: pointer; font: inherit; transition: border-color .15s ease, box-shadow .15s ease; }
+  .opt:hover { border-color: #9db8dd; }
+  .opt[aria-checked="true"] { border-color: var(--blue); box-shadow: 0 0 0 4px rgba(37,99,235,.12); }
+  .opt b { display: block; color: var(--navy); font-size: 1.05rem; }
+  .opt .add { color: var(--blue); font-weight: 700; font-size: .9rem; }
+  .opt .info { color: var(--muted); font-size: .84rem; margin-top: 5px; }
+
+  .stepper { display: inline-flex; align-items: center; gap: 14px; background: #fff; border: 2px solid var(--line);
+    border-radius: 14px; padding: 8px 12px; }
+  .stepper button { width: 46px; height: 46px; border-radius: 10px; border: 1px solid var(--line); background: var(--soft);
+    font-size: 1.4rem; font-weight: 800; color: var(--navy); cursor: pointer; }
+  .stepper button:hover:not([disabled]) { background: var(--sky); }
+  .stepper button[disabled] { opacity: .35; cursor: not-allowed; }
+  .stepper .val { min-width: 90px; text-align: center; font-weight: 800; font-size: 1.2rem; color: var(--navy); }
+  .stepper .val small { display: block; font-size: .75rem; color: var(--muted); font-weight: 600; }
+
+  .acc { display: flex; flex-direction: column; gap: 12px; }
+  .accrow { display: flex; gap: 14px; align-items: center; background: #fff; border: 2px solid var(--line);
+    border-radius: 14px; padding: 14px 16px; flex-wrap: wrap; }
+  .accrow .info { flex: 1; min-width: 220px; }
+  .accrow .info b { color: var(--navy); }
+  .accrow .info p { color: var(--muted); font-size: .9rem; }
+  .accrow .side { display: flex; align-items: center; gap: 12px; }
+  .price-tag { font-weight: 800; color: var(--navy); white-space: nowrap; }
+  .switch { position: relative; width: 56px; height: 32px; flex-shrink: 0; }
+  .switch input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .switch .track { position: absolute; inset: 0; background: #cbd5e1; border-radius: 999px; transition: background .15s ease; pointer-events: none; }
+  .switch .track::after { content: ""; position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 50%;
+    background: #fff; transition: transform .15s ease; box-shadow: 0 1px 4px rgba(0,0,0,.25); }
+  .switch input:checked + .track { background: var(--blue); }
+  .switch input:checked + .track::after { transform: translateX(24px); }
+  .switch input:focus-visible + .track { outline: 3px solid var(--blue); outline-offset: 2px; }
+
+  .summary { background: #fff; border: 2px solid var(--line); border-radius: var(--radius); padding: 22px; }
+  .summary ul { list-style: none; }
+  .summary li { display: flex; justify-content: space-between; gap: 14px; padding: 9px 0; border-bottom: 1px dashed var(--line); font-size: .95rem; }
+  .summary li span:last-child { font-weight: 700; color: var(--navy); white-space: nowrap; }
+  .summary .empty { color: var(--muted); font-style: italic; }
+  .summary .total { display: flex; justify-content: space-between; align-items: baseline; padding-top: 14px; font-size: 1.1rem; }
+  .summary .total b { font-size: 1.7rem; color: var(--navy); }
+
+  .config-layout { display: grid; grid-template-columns: 1fr 320px; gap: 28px; align-items: start; }
+  .price-card { position: sticky; top: 76px; background: var(--navy); color: #fff; border-radius: var(--radius);
+    padding: 22px; box-shadow: var(--shadow); }
+  .price-card h3 { font-size: .85rem; text-transform: uppercase; letter-spacing: .08em; color: #9db8dd; margin-bottom: 12px; }
+  .price-card ul { list-style: none; margin-bottom: 12px; }
+  .price-card li { display: flex; justify-content: space-between; gap: 10px; padding: 5px 0; font-size: .92rem; color: #dbe6f7; }
+  .price-card li span:last-child { font-weight: 700; color: #fff; white-space: nowrap; }
+  .price-card .none { color: #8fa8cc; font-style: italic; }
+  .price-card .total { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid rgba(255,255,255,.18); padding-top: 12px; }
+  .price-card .total b { font-size: 1.9rem; }
+  .price-card .total small { color: #9db8dd; }
+  .price-card .btn { width: 100%; margin-top: 14px; }
+  .price-card .note { font-size: .8rem; color: #9db8dd; margin-top: 10px; text-align: center; }
+
+  .bottombar { display: none; }
+
+  details.compare, details.faq-item { border: 2px solid var(--line); border-radius: 14px; background: #fff; overflow: hidden; }
+  details.compare { margin-top: 26px; }
+  details.faq-item { margin-bottom: 10px; }
+  details summary { cursor: pointer; padding: 18px 20px; font-weight: 700; color: var(--navy); font-size: 1.02rem;
+    list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 12px; min-height: 56px; }
+  details summary::-webkit-details-marker { display: none; }
+  details summary::after { content: "+"; font-size: 1.5rem; color: var(--blue); font-weight: 400; flex-shrink: 0; transition: transform .2s ease; }
+  details[open] summary::after { transform: rotate(45deg); }
+  details > div, details > table { padding: 0 20px 18px; }
+
+  table.cmp { width: 100%; border-collapse: collapse; font-size: .93rem; }
+  table.cmp th, table.cmp td { padding: 11px 10px; text-align: left; border-bottom: 1px solid var(--line); }
+  table.cmp th { color: var(--navy); font-size: .85rem; text-transform: uppercase; letter-spacing: .04em; }
+  table.cmp td:first-child { color: var(--muted); font-weight: 600; }
+  table.cmp .yes { color: var(--ok); font-weight: 800; }
+  table.cmp .no { color: #b6c2d4; font-weight: 800; }
+  .cmp-scroll { overflow-x: auto; }
+
+  .how-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 18px; margin-top: 30px; }
+  .how { background: #fff; border: 2px solid var(--line); border-radius: var(--radius); padding: 24px; }
+  .how .n { width: 40px; height: 40px; border-radius: 12px; background: var(--sky); color: var(--blue);
+    display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.1rem; margin-bottom: 12px; }
+  .how h4 { color: var(--navy); margin-bottom: 6px; }
+  .how p { color: var(--muted); font-size: .93rem; }
+
+  .privacy { background: linear-gradient(160deg, var(--navy), var(--navy-2)); color: #fff; border-radius: 22px;
+    padding: clamp(28px, 5vw, 52px); }
+  .privacy h2 { color: #fff; }
+  .privacy .claim { font-size: clamp(1.3rem, 3vw, 1.8rem); font-weight: 800; color: #7db4ff; margin: 8px 0 24px; }
+  .privacy ul { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+  .privacy li { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.15); border-radius: 12px;
+    padding: 14px 16px; font-size: .95rem; color: #dbe6f7; padding-left: 44px; position: relative; }
+  .privacy li::before { content: "🔒"; position: absolute; left: 14px; top: 13px; }
+
+  .faq-list { max-width: 760px; margin: 26px auto 0; }
+
+  form.order { background: #fff; border: 2px solid var(--line); border-radius: var(--radius); padding: clamp(20px, 4vw, 32px);
+    max-width: 640px; margin: 26px auto 0; }
+  .frow { margin-bottom: 16px; }
+  .frow label { display: block; font-weight: 700; color: var(--navy); font-size: .92rem; margin-bottom: 6px; }
+  .frow input[type="text"], .frow input[type="email"] { width: 100%; padding: 13px 14px; border: 2px solid var(--line);
+    border-radius: 10px; font-size: 1rem; color: var(--ink); background: #fff; min-height: 48px; }
+  .frow input:focus { border-color: var(--blue); outline: none; box-shadow: 0 0 0 4px rgba(37,99,235,.12); }
+  .frow .err { color: var(--warn); font-size: .84rem; font-weight: 600; margin-top: 4px; display: none; }
+  .frow.invalid input { border-color: var(--warn); }
+  .frow.invalid .err { display: block; }
+  fieldset { border: none; margin-bottom: 16px; }
+  fieldset legend { font-weight: 700; color: var(--navy); font-size: .92rem; margin-bottom: 8px; }
+  .payopts { display: flex; gap: 10px; flex-wrap: wrap; }
+  .payopt { flex: 1; min-width: 140px; }
+  .payopt input { position: absolute; opacity: 0; }
+  .payopt label { display: flex; align-items: center; justify-content: center; gap: 8px; border: 2px solid var(--line);
+    border-radius: 10px; padding: 13px 10px; cursor: pointer; font-weight: 600; font-size: .92rem; color: var(--muted); min-height: 48px; }
+  .payopt input:checked + label { border-color: var(--blue); color: var(--navy); background: var(--sky); }
+  .payopt input:focus-visible + label { outline: 3px solid var(--blue); outline-offset: 2px; }
+  .order .btn { width: 100%; }
+  .order .fine { font-size: .82rem; color: var(--muted); margin-top: 12px; text-align: center; }
+  .success { background: #f0fdf4; border: 2px solid #86efac; border-radius: var(--radius); padding: 30px; text-align: center; max-width: 640px; margin: 26px auto 0; }
+  .success .big { font-size: 2.4rem; }
+  .success h3 { color: var(--ok); font-size: 1.4rem; margin: 8px 0; }
+  .success p { color: var(--muted); }
+
+  footer { background: var(--navy); color: #9db8dd; padding: 40px 18px; }
+  footer .wrap { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; align-items: center; }
+  footer .flogo { font-weight: 800; color: #fff; font-size: 1.1rem; }
+  footer nav { display: flex; gap: 18px; flex-wrap: wrap; }
+  footer a { color: #9db8dd; text-decoration: none; font-size: .9rem; }
+  footer a:hover { color: #fff; text-decoration: underline; }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+  @media (max-width: 900px) {
+    .config-layout { grid-template-columns: 1fr; }
+    .price-card { display: none; }
+    .hero .wrap { grid-template-columns: 1fr; }
+    .hero-art { order: -1; }
+    .device { width: min(220px, 60%); }
+    .bottombar { display: flex; position: fixed; bottom: 0; left: 0; right: 0; z-index: 60; align-items: center; gap: 14px;
+      background: rgba(11,36,71,.97); color: #fff; padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px));
+      border-top: 1px solid rgba(255,255,255,.15); box-shadow: 0 -8px 24px rgba(0,0,0,.3); }
+    .bottombar .bb-total { display: flex; flex-direction: column; line-height: 1.25; }
+    .bottombar .bb-total small { color: #9db8dd; font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; }
+    .bottombar .bb-total b { font-size: 1.25rem; }
+    .bottombar .btn { margin-left: auto; padding: 12px 20px; min-height: 46px; font-size: .95rem; }
+    body { padding-bottom: 78px; }
+    .step { scroll-margin-top: 70px; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#konfigurator">Direkt zum Konfigurator</a>
+<div id="root"></div>
+<script type="text/babel">
+const PRODUCTS = [
+  {
+    id: "hub",
+    name: "Home Hub",
+    usersLabel: "Für 1 Person",
+    maxUsers: 1,
+    price: 349,
+    storages: ["s256", "s512", "s1024"],
+    accessories: ["sat", "zigbee", "support"],
+    highlights: ["Kompakt & leise — passt in jede Ecke", "Schnelle Antworten im Alltag", "Perfekt fürs Apartment", "Alle Daten bleiben im Gerät"],
+    aiSize: "Kompaktes KI-Modell",
+    speed: "Standard-Tempo",
+    desc: "Der Einstieg: ein treuer Helfer für deinen Tag."
+  },
+  {
+    id: "pro",
+    name: "Home Hub Pro",
+    usersLabel: "Bis 4 Personen",
+    maxUsers: 4,
+    price: 599,
+    storages: ["s256", "s512", "s1024", "s2048"],
+    accessories: ["sat", "zigbee", "cam", "support"],
+    highlights: ["Schnellere & bessere KI-Modelle", "Kamera-Bilderkennung — direkt im Gerät", "Erkennt jeden Bewohner einzeln", "Mehr Leistung für Familie & Homeoffice"],
+    aiSize: "Mittleres KI-Modell",
+    speed: "Schnell",
+    desc: "Der Familien-Copilot mit Bilderkennung."
+  },
+  {
+    id: "max",
+    name: "Home Hub Max",
+    usersLabel: "Bis 10 Personen",
+    maxUsers: 10,
+    price: 999,
+    storages: ["s512", "s1024", "s2048"],
+    accessories: ["sat", "zigbee", "cam", "support"],
+    highlights: ["Das leistungsstärkste Modell", "Für große Haushalte & Gewerbe", "Blitzschnelle Antworten", "RAID-Speicher für maximale Sicherheit"],
+    aiSize: "Großes KI-Modell",
+    speed: "Blitzschnell",
+    desc: "Maximale Leistung für viele Menschen."
+  }
+];
+
+const STORAGES = {
+  s256: { label: "256 GB", add: 0, info: "Reicht für ca. 50.000 Fotos oder 25.000 Dokumente." },
+  s512: { label: "512 GB", add: 80, info: "Reicht für ca. 100.000 Fotos oder 50.000 Dokumente." },
+  s1024: { label: "1 TB", add: 160, info: "Reicht für ca. 200.000 Fotos oder 100.000 Dokumente." },
+  s2048: { label: "2 TB (RAID 1)", add: 320, info: "Reicht für ca. 400.000 Fotos — gespiegelt, doppelte Sicherheit: Fällt eine Platte aus, sind deine Daten trotzdem da." }
+};
+
+const ACCESSORIES = {
+  sat: { name: "Voice-Satellit", price: 49, maxQty: 4, desc: "Sprachbedienung für weitere Räume — ganz ohne Handy. Pro Raum ein Satellit." },
+  zigbee: { name: "Smart-Home-Funkmodul (Zigbee & Matter)", price: 79, desc: "Steuert Lampen, Thermostate, Rollos & Co. direkt über den Hub." },
+  cam: { name: "Kamera-Paket", price: 129, desc: "Bilderkennung direkt im Gerät: Der Hub sieht, wer zu Hause ist — Bilder werden nie versendet." },
+  support: { name: "Erweiterter Support", price: 99, desc: "48 Monate Garantie statt 24 + Prioritäts-Hotline (Mo–Sa, 8–20 Uhr)." }
+};
+
+const ORDER_ENDPOINT = null;
+
+async function submitOrder(order) {
+  if (ORDER_ENDPOINT) {
+    const res = await fetch(ORDER_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(order)
+    });
+    return { ok: res.ok };
+  }
+  return { ok: true };
+}
+
+const COMPARE_ROWS = [
+  { label: "Nutzer", key: "usersLabel" },
+  { label: "KI-Modellgröße", key: "aiSize" },
+  { label: "Antwortgeschwindigkeit", key: "speed" },
+  { label: "Speicher-Optionen", key: "storageText" },
+  { label: "Kamera-Bilderkennung", key: "camText" },
+  { label: "Zubehör-Kompatibilität", key: "accText" },
+  { label: "Preis", key: "priceText" }
+];
+
+const FAQ = [
+  { q: "Brauche ich Internet für den Home Hub?", a: "Nur zum Einrichten und für Updates. Danach läuft alles komplett offline — Sprachsteuerung, Bilderkennung, Smart Home. Ohne Internet funktioniert dein Hub einfach weiter." },
+  { q: "Wo genau liegen meine Daten?", a: "Auf der verschlüsselten Festplatte im Gerät, in deinem Wohnzimmer. Es gibt keine Cloud, keine Server von uns, keine Konten bei Dritten. Bei RAID 1 (2 TB) werden alle Daten zusätzlich gespiegelt." },
+  { q: "Was bedeutet „RAID 1 — gespiegelt“?", a: "Im Gerät arbeiten zwei Festplatten als Zwillinge: Jede Datei existiert immer zweimal. Fällt eine Platte aus, übernimmt sofort die andere — deine Fotos und Dokumente sind nicht weg." },
+  { q: "Kann die Kamera meine Bilder ins Internet senden?", a: "Nein. Die Bilderkennung läuft ausschließlich auf dem Prozessor im Gerät. Die Kamera hat zudem einen physischen Schalter, mit dem du sie komplett abschalten kannst." },
+  { q: "Hört der Hub mich ständig?", a: "Er lauscht nur auf sein Rufwort (z. B. „Hey Home Hub“). Das Mikrofon lässt sich per Hardware-Taster sofort stumm schalten — dann kann physisch nichts aufgezeichnet werden." },
+  { q: "Was passiert, wenn das Gerät defekt ist?", a: "Du bekommst ein repariertes Austauschgerät und ziehst deine verschlüsselte Festplatte einfach um — deine Daten und Profile wandern mit. Mit erweitertem Support gilt die Garantie 48 Monate." },
+  { q: "Kann ich später Speicher oder Zubehör aufrüsten?", a: "Ja. Zubehör wie Voice-Satelliten und das Funkmodul kannst du jederzeit nachkaufen. Den Speicher tauschst du über unseren Rüst-Service aus, ohne deine Daten zu verlieren." },
+  { q: "Funktioniert der Hub mit meinen Smart-Home-Geräten?", a: "Mit dem Funkmodul (Zigbee & Matter) steuert der Hub die meisten gängigen Geräte: Lampen, Thermostate, Rollos, Steckdosen und Sensoren von über 100 Marken." },
+  { q: "Fällt monatlich etwas an? Gibt es ein Abo?", a: "Nein. Du zahlst einmal für das Gerät — danach keine Kosten, kein Abo, keine versteckten Gebühren. Auch die Updates sind kostenlos." },
+  { q: "Wie viele Voice-Satelliten brauche ich?", a: "Faustregel: einer pro Raum, in dem du sprechen möchtest — z. B. Wohnzimmer, Küche und Schlafzimmer. Du startest mit einem und ergänzt jederzeit." }
+];
+
+const HOW = [
+  { n: "1", title: "Auspacken & anschließen", text: "Stecker in die Wand, Gerät einschalten. Mehr braucht es nicht — kein Handwerker, kein Kabelsalat." },
+  { n: "2", title: "QR-Code scannen", text: "Mit dem Handy den QR-Code auf dem Gerät scannen. In 2 Minuten sind alle Profile eingerichtet." },
+  { n: "3", title: "Fertig — los geht’s", text: "Sprich einfach los: „Hey Home Hub, was steht heute an?“ Dein Assistent lernt deinen Alltag — nur lokal." }
+];
+
+const PRIVACY_POINTS = [
+  "Keine Cloud, keine Server, keine Konten bei Dritten",
+  "Alle Profile getrennt & verschlüsselt pro Person",
+  "Mikrofon & Kamera mit physischem Hardware-Schalter",
+  "Updates werden lokal geprüft und signiert installiert",
+  "Verkauf oder Entsorgung? Ein Knopf löscht alles unwiderruflich",
+  "Offen dokumentiert: Unser Sicherheits-Audit ist öffentlich einsehbar"
+];
+
+const euro = n => n.toLocaleString("de-DE") + " €";
+
+function App() {
+  const [modelId, setModelId] = React.useState(null);
+  const [storageId, setStorageId] = React.useState(null);
+  const [profiles, setProfiles] = React.useState(1);
+  const [satQty, setSatQty] = React.useState(0);
+  const [accOn, setAccOn] = React.useState({});
+  const [form, setForm] = React.useState({ name: "", email: "", street: "", zip: "", city: "", pay: "invoice" });
+  const [errors, setErrors] = React.useState({});
+  const [sent, setSent] = React.useState(false);
+  const [sending, setSending] = React.useState(false);
+
+  const model = PRODUCTS.find(p => p.id === modelId) || null;
+  const storage = model && storageId && model.storages.includes(storageId) ? STORAGES[storageId] : null;
+
+  const lines = [];
+  if (model) lines.push({ label: model.name + " (" + model.usersLabel + ")", add: model.price });
+  if (storage) lines.push({ label: "Speicher: " + storage.label, add: storage.add });
+  if (model && profiles > 1) lines.push({ label: profiles + " Nutzerprofile", add: 0 });
+  if (satQty > 0) lines.push({ label: satQty + "× Voice-Satellit", add: satQty * ACCESSORIES.sat.price });
+  model && model.accessories.filter(a => a !== "sat" && accOn[a]).forEach(a =>
+    lines.push({ label: ACCESSORIES[a].name, add: ACCESSORIES[a].price })
+  );
+  const total = lines.reduce((s, l) => s + l.add, 0);
+  const configComplete = !!model && !!storage;
+
+  function pickModel(id) {
+    const m = PRODUCTS.find(p => p.id === id);
+    setModelId(id);
+    setProfiles(p => Math.min(p, m.maxUsers));
+    setSatQty(q => Math.min(q, m.accessories.includes("sat") ? 4 : 0));
+    setAccOn(o => {
+      const next = {};
+      m.accessories.filter(a => a !== "sat").forEach(a => { if (o[a]) next[a] = true; });
+      return next;
+    });
+    if (!m.storages.includes(storageId)) setStorageId(null);
+  }
+
+  function validate() {
+    const e = {};
+    if (!form.name.trim()) e.name = "Bitte gib deinen Namen an.";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(form.email.trim())) e.email = "Bitte gib eine gültige E-Mail-Adresse an.";
+    if (!form.street.trim()) e.street = "Bitte gib deine Straße und Hausnummer an.";
+    if (!/^\d{4,5}$/.test(form.zip.trim())) e.zip = "Bitte gib eine gültige PLZ an.";
+    if (!form.city.trim()) e.city = "Bitte gib deinen Wohnort an.";
+    return e;
+  }
+
+  async function placeOrder(ev) {
+    ev.preventDefault();
+    const e = validate();
+    setErrors(e);
+    if (Object.keys(e).length || !configComplete) return;
+    setSending(true);
+    const result = await submitOrder({
+      product: model.name, storage: storage.label, profiles,
+      voiceSatellites: satQty,
+      accessories: model.accessories.filter(a => a !== "sat" && accOn[a]).map(a => ACCESSORIES[a].name),
+      total, customer: form
+    });
+    setSending(false);
+    if (result.ok) setSent(true);
+  }
+
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const field = (k, label, type, auto) => (
+    <div className={"frow" + (errors[k] ? " invalid" : "")}>
+      <label htmlFor={"f-" + k}>{label}</label>
+      <input id={"f-" + k} type={type} autoComplete={auto} value={form[k]}
+        onChange={e => set(k, e.target.value)} aria-invalid={!!errors[k]} aria-describedby={errors[k] ? "e-" + k : null} />
+      <p className="err" id={"e-" + k}>{errors[k]}</p>
+    </div>
+  );
+
+  return (
+    <React.Fragment>
+      <nav className="topbar" aria-label="Hauptnavigation">
+        <a className="logo" href="#top"><span className="dot" aria-hidden="true"></span>Home Hub</a>
+        <div className="navlinks">
+          <a href="#konfigurator">Konfigurator</a>
+          <a href="#vergleich">Vergleich</a>
+          <a href="#datenschutz">Datenschutz</a>
+          <a href="#faq">FAQ</a>
+        </div>
+      </nav>
+
+      <header className="hero" id="top">
+        <div className="wrap">
+          <div>
+            <h1>Deine KI. <span>Deine Daten.</span><br/>Dein Zuhause.</h1>
+            <p className="sub">Home Hub ist der lokale KI-Assistent für zu Hause. Er spricht, sieht, plant und schaltet das Licht — und alles bleibt bei dir. Keine Cloud. Kein Abo. Keine Weitergabe.</p>
+            <div className="badges">
+              <span className="badge">🔒 100 % lokal</span>
+              <span className="badge">☁️ Keine Cloud</span>
+              <span className="badge">💳 Kein Abo</span>
+              <span className="badge">👨‍👩‍👧 Bis 10 Personen</span>
+            </div>
+            <div className="cta-row">
+              <a className="btn btn-primary" href="#konfigurator">Jetzt konfigurieren</a>
+              <a className="btn btn-ghost" href="#so-funktioniert">So funktioniert’s</a>
+            </div>
+          </div>
+          <div className="hero-art" aria-hidden="true">
+            <div className="device">
+              <div className="led"></div>
+              <div className="face"><div className="wave"><i></i><i></i><i></i><i></i><i></i></div></div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section className="section" id="konfigurator">
+        <div className="wrap">
+          <h2>Konfigurier deinen Home Hub</h2>
+          <p className="lead">Fünf Schritte, kein Kleingedrucktes: Wähle Gerät, Speicher, Profile und Zubehör — der Preis rechnet sich live mit.</p>
+
+          <div className="config-layout">
+            <div>
+              <div className="stepnav" aria-label="Konfigurator-Schritte">
+                {[["1", "Modell", !!model], ["2", "Speicher", !!storage], ["3", "Profile", !!model], ["4", "Zubehör", !!model], ["5", "Bestellen", sent]].map(([n, t, done]) => (
+                  <button key={n} className={done ? "done" : ""} onClick={() => document.getElementById("step-" + n).scrollIntoView({ behavior: "smooth" })}>
+                    {done ? "✓" : n} {t}
+                  </button>
+                ))}
+              </div>
+
+              <div className="step" id="step-1">
+                <h3><span className="stepnum" aria-hidden="true">1</span>Welches Modell passt zu euch?</h3>
+                <p className="hint">Alle drei Modelle speichern und rechnen komplett lokal — sie unterscheiden sich in Leistung, Nutzerzahl und Ausstattung.</p>
+                <div className="cards" role="radiogroup" aria-label="Modell wählen">
+                  {PRODUCTS.map(p => (
+                    <button key={p.id} className="card" role="radio" aria-checked={modelId === p.id} onClick={() => pickModel(p.id)}>
+                      <h4>{p.name}</h4>
+                      <p className="for">{p.usersLabel}</p>
+                      <ul>{p.highlights.map((h, i) => <li key={i}>{h}</li>)}</ul>
+                      <p className="price">ab {euro(p.price)} <small>inkl. MwSt.</small></p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="step" id="step-2">
+                <h3><span className="stepnum" aria-hidden="true">2</span>Wie viel Speicher brauchst du?</h3>
+                <p className="hint">{model ? "Verfügbar für " + model.name + ". Alle Angaben sind großzügige Richtwerte." : "Wähle zuerst ein Modell in Schritt 1."}</p>
+                {model ? (
+                  <div className="optgrid" role="radiogroup" aria-label="Speicher wählen">
+                    {model.storages.map(sid => (
+                      <button key={sid} className="opt" role="radio" aria-checked={storageId === sid} onClick={() => setStorageId(sid)}>
+                        <b>{STORAGES[sid].label}</b>
+                        <span className="add">{STORAGES[sid].add === 0 ? "inklusive" : "+ " + euro(STORAGES[sid].add)}</span>
+                        <p className="info">{STORAGES[sid].info}</p>
+                      </button>
+                    ))}
+                  </div>
+                ) : <p className="empty" style={{ color: "var(--muted)" }}>Bitte zuerst ein Modell wählen.</p>}
+              </div>
+
+              <div className="step" id="step-3">
+                <h3><span className="stepnum" aria-hidden="true">3</span>Für wie viele Personen?</h3>
+                <p className="hint">Jede Person bekommt ihr eigenes, verschlüsseltes Profil: eigene Termine, eigene Erinnerungen, eigene Daten — niemand sieht etwas vom anderen.</p>
+                {model ? (
+                  <div className="stepper">
+                    <button onClick={() => setProfiles(p => Math.max(1, p - 1))} disabled={profiles <= 1} aria-label="Weniger Profile">−</button>
+                    <div className="val" aria-live="polite">{profiles}<small>von max. {model.maxUsers}</small></div>
+                    <button onClick={() => setProfiles(p => Math.min(model.maxUsers, p + 1))} disabled={profiles >= model.maxUsers} aria-label="Mehr Profile">+</button>
+                  </div>
+                ) : <p style={{ color: "var(--muted)" }}>Bitte zuerst ein Modell wählen.</p>}
+              </div>
+
+              <div className="step" id="step-4">
+                <h3><span className="stepnum" aria-hidden="true">4</span>Zubehör & Extras</h3>
+                <p className="hint">Alles optional — dein Hub funktioniert auch ohne.</p>
+                <div className="acc">
+                  {model && model.accessories.includes("sat") ? (
+                    <div className="accrow">
+                      <div className="info"><b>{ACCESSORIES.sat.name}</b><p>{ACCESSORIES.sat.desc}</p></div>
+                      <div className="side">
+                        <span className="price-tag">{euro(ACCESSORIES.sat.price)} / Stk.</span>
+                        <div className="stepper">
+                          <button onClick={() => setSatQty(q => Math.max(0, q - 1))} disabled={satQty <= 0} aria-label="Weniger Voice-Satelliten">−</button>
+                          <div className="val" aria-live="polite">{satQty}<small>von max. 4</small></div>
+                          <button onClick={() => setSatQty(q => Math.min(4, q + 1))} disabled={satQty >= 4} aria-label="Mehr Voice-Satelliten">+</button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : null}
+                  {model && model.accessories.filter(a => a !== "sat").map(a => (
+                    <div className="accrow" key={a}>
+                      <div className="info"><b>{ACCESSORIES[a].name}</b><p>{ACCESSORIES[a].desc}</p></div>
+                      <div className="side">
+                        <span className="price-tag">+ {euro(ACCESSORIES[a].price)}</span>
+                        <div className="switch">
+                          <input type="checkbox" id={"acc-" + a} checked={!!accOn[a]}
+                            onChange={e => setAccOn(o => ({ ...o, [a]: e.target.checked }))} />
+                          <label className="track" htmlFor={"acc-" + a} aria-label={ACCESSORIES[a].name + " hinzufügen"}></label>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {!model && <p style={{ color: "var(--muted)" }}>Bitte zuerst ein Modell wählen.</p>}
+                </div>
+              </div>
+
+              <div className="step" id="step-5">
+                <h3><span className="stepnum" aria-hidden="true">5</span>Deine Zusammenfassung</h3>
+                <p className="hint">Prüfe deine Auswahl — alles kannst du oben jederzeit ändern.</p>
+                <div className="summary">
+                  {lines.length ? (
+                    <ul>
+                      {lines.map((l, i) => (
+                        <li key={i}><span>{l.label}</span><span>{l.add === 0 ? "inklusive" : euro(l.add)}</span></li>
+                      ))}
+                    </ul>
+                  ) : <p className="empty">Noch nichts gewählt — starte mit Schritt 1.</p>}
+                  <div className="total"><span>Gesamtpreis</span><b>{euro(total)}</b></div>
+                  <a className="btn btn-primary" href="#bestellung" disabled={!configComplete}
+                    aria-disabled={!configComplete}
+                    style={configComplete ? null : { pointerEvents: "none", opacity: .45 }}>
+                    {configComplete ? "Jetzt vorbestellen" : "Erst Modell & Speicher wählen"}
+                  </a>
+                  {!configComplete && <p className="note" style={{ color: "var(--muted)", fontSize: ".85rem", marginTop: 10, textAlign: "center" }}>Vorbestellen ist möglich, sobald Modell und Speicher gewählt sind.</p>}
+                </div>
+
+                <div id="bestellung" style={{ scrollMarginTop: 90 }}>
+                  {sent ? (
+                    <div className="success" role="status">
+                      <div className="big" aria-hidden="true">🎉</div>
+                      <h3>Danke, {form.name.split(" ")[0]}!</h3>
+                      <p>Deine Vorbestellung für den <b>{model.name}</b> ({storage.label}, {profiles} {profiles === 1 ? "Profil" : "Profile"}) ist eingegangen.</p>
+                      <p>Eine Bestätigungs-E-Mail geht an <b>{form.email}</b>. Wir melden uns, sobald dein Home Hub in Produktion ist — Bezahlung erst vor dem Versand.</p>
+                    </div>
+                  ) : (
+                    <form className="order" onSubmit={placeOrder} noValidate>
+                      <h3 style={{ color: "var(--navy)", marginBottom: 16 }}>Vorbestellung — unverbindlich</h3>
+                      {field("name", "Name", "text", "name")}
+                      {field("email", "E-Mail", "email", "email")}
+                      {field("street", "Straße & Hausnummer", "text", "street-address")}
+                      <div style={{ display: "grid", gridTemplateColumns: "130px 1fr", gap: 12 }}>
+                        {field("zip", "PLZ", "text", "postal-code")}
+                        {field("city", "Wohnort", "text", "address-level2")}
+                      </div>
+                      <fieldset>
+                        <legend>Zahlungsart</legend>
+                        <div className="payopts">
+                          {[["invoice", "Rechnung"], ["sepa", "SEPA-Lastschrift"], ["card", "Kreditkarte"]].map(([v, t]) => (
+                            <div className="payopt" key={v}>
+                              <input type="radio" name="pay" id={"pay-" + v} value={v}
+                                checked={form.pay === v} onChange={() => set("pay", v)} />
+                              <label htmlFor={"pay-" + v}>{t}</label>
+                            </div>
+                          ))}
+                        </div>
+                      </fieldset>
+                      <button className="btn btn-primary" type="submit" disabled={!configComplete || sending}>
+                        {sending ? "Wird gesendet …" : "Vorbestellung absenden"}
+                      </button>
+                      <p className="fine">Unverbindlich & kostenlos — du kannst jederzeit stornieren. Es ist noch keine Zahlung fällig.</p>
+                    </form>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <aside className="price-card" aria-label="Preisübersicht">
+              <h3>Deine Auswahl</h3>
+              {lines.length ? (
+                <ul>
+                  {lines.map((l, i) => <li key={i}><span>{l.label}</span><span>{l.add === 0 ? "0 €" : euro(l.add)}</span></li>)}
+                </ul>
+              ) : <p className="none">Noch nichts gewählt.</p>}
+              <div className="total"><small>Gesamt</small><b aria-live="polite">{euro(total)}</b></div>
+              <a className="btn btn-primary" href="#bestellung" style={configComplete ? null : { pointerEvents: "none", opacity: .45 }}>Vorbestellen</a>
+              <p className="note">🔒 Daten bleiben lokal · Kein Abo · 30 Tage Rückgabe</p>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      <div className="bottombar" aria-label="Preisübersicht mobil">
+        <div className="bb-total"><small>Gesamt</small><b aria-live="polite">{euro(total)}</b></div>
+        <a className="btn btn-primary" href="#step-5">Zur Bestellung</a>
+      </div>
+
+      <section className="section alt" id="vergleich">
+        <div className="wrap">
+          <h2>Die Modelle im Vergleich</h2>
+          <p className="lead">Alle drei speichern und rechnen lokal — der Unterschied liegt in Leistung, Nutzerzahl und Ausstattung.</p>
+          <details className="compare">
+            <summary>Vergleichstabelle anzeigen</summary>
+            <div className="cmp-scroll">
+              <table className="cmp">
+                <thead>
+                  <tr><th scope="col"></th>{PRODUCTS.map(p => <th scope="col" key={p.id}>{p.name}</th>)}</tr>
+                </thead>
+                <tbody>
+                  {COMPARE_ROWS.map(r => (
+                    <tr key={r.key}>
+                      <td>{r.label}</td>
+                      {PRODUCTS.map(p => {
+                        const v = r.key === "storageText" ? p.storages.map(s => STORAGES[s].label.replace(" (RAID 1)", "")).join(", ")
+                          : r.key === "camText" ? (p.accessories.includes("cam") ? "Ja" : "Nein")
+                          : r.key === "accText" ? p.accessories.map(a => ACCESSORIES[a].name.split(" (")[0]).join(", ")
+                          : r.key === "priceText" ? "ab " + euro(p.price)
+                          : p[r.key];
+                        return <td key={p.id} className={r.key === "camText" ? (p.accessories.includes("cam") ? "yes" : "no") : ""}>{v}</td>;
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <section className="section" id="so-funktioniert">
+        <div className="wrap">
+          <h2 className="center">In 5 Minuten einsatzbereit</h2>
+          <p className="lead center">Kein Techniker, kein Handbuch, keine Konto-Erstellung. Auspacken, scannen, fertig.</p>
+          <div className="how-grid">
+            {HOW.map(h => (
+              <div className="how" key={h.n}>
+                <div className="n" aria-hidden="true">{h.n}</div>
+                <h4>{h.title}</h4>
+                <p>{h.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="section" id="datenschutz">
+        <div className="wrap">
+          <div className="privacy">
+            <h2>Datenschutz, der wirklich einer ist</h2>
+            <p className="claim">Deine Daten verlassen nie dein Zuhause.</p>
+            <ul>
+              {PRIVACY_POINTS.map((p, i) => <li key={i}>{p}</li>)}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section className="section alt" id="faq">
+        <div className="wrap">
+          <h2 className="center">Häufige Fragen</h2>
+          <div className="faq-list">
+            {FAQ.map((f, i) => (
+              <details className="faq-item" key={i}>
+                <summary>{f.q}</summary>
+                <div><p style={{ color: "var(--muted)" }}>{f.a}</p></div>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <div className="wrap">
+          <div>
+            <div className="flogo">🔒 Home Hub</div>
+            <p style={{ fontSize: ".85rem", marginTop: 6 }}>Deine KI. Deine Daten. Dein Zuhause.</p>
+          </div>
+          <nav aria-label="Rechtliches">
+            <a href="#" title="Platzhalter">Impressum</a>
+            <a href="#" title="Platzhalter">Datenschutzerklärung</a>
+            <a href="#" title="Platzhalter">AGB</a>
+            <a href="#" title="Platzhalter">Widerrufsbelehrung</a>
+          </nav>
+          <p style={{ fontSize: ".85rem" }}>© 2026 Home Hub</p>
+        </div>
+      </footer>
+    </React.Fragment>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
