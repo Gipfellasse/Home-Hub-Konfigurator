@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Home Hub — Deine KI. Deine Daten. Dein Zuhause.</title>
-<meta name="description" content="Lokale KI-Assistenten für zu Hause. Deine Daten verlassen nie dein Zuhause. Jetzt dein Home Hub konfigurieren.">
+<title>Home Hub — Dein KI-Workspace. Deine Daten. Dein Zuhause.</title>
+<meta name="description" content="Lokaler KI-Workspace für zu Hause — schreiben, planen, lernen, mit Home Kid-Modus für Kinder. Deine Daten verlassen nie dein Zuhause.">
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -67,15 +67,12 @@
     border-radius: 999px; background: #7db4ff; box-shadow: 0 0 18px #7db4ff; animation: pulse 2.6s ease-in-out infinite; }
   .device .face { position: absolute; inset: 60px 26px 26px; border-radius: 16px;
     background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.02)); border: 1px solid rgba(255,255,255,.10); }
-  .device .face .wave { position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; align-items: flex-end; height: 26px; }
-  .device .face .wave i { width: 5px; border-radius: 3px; background: #7db4ff; animation: wave 1.2s ease-in-out infinite; }
-  .device .face .wave i:nth-child(1) { height: 30%; animation-delay: 0s; }
-  .device .face .wave i:nth-child(2) { height: 70%; animation-delay: .15s; }
-  .device .face .wave i:nth-child(3) { height: 100%; animation-delay: .3s; }
-  .device .face .wave i:nth-child(4) { height: 60%; animation-delay: .45s; }
-  .device .face .wave i:nth-child(5) { height: 35%; animation-delay: .6s; }
+  .device .face .dots { position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; }
+  .device .face .dots i { width: 10px; height: 10px; border-radius: 50%; background: #7db4ff; animation: blink 1.4s ease-in-out infinite; }
+  .device .face .dots i:nth-child(2) { animation-delay: .2s; }
+  .device .face .dots i:nth-child(3) { animation-delay: .4s; }
   @keyframes pulse { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
-  @keyframes wave { 0%, 100% { transform: scaleY(.5); } 50% { transform: scaleY(1); } }
+  @keyframes blink { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
 
   .stepnav { display: flex; gap: 6px; flex-wrap: wrap; margin: 26px 0 34px; }
   .stepnav button { border: 1px solid var(--line); background: #fff; color: var(--muted); font-weight: 600;
@@ -266,11 +263,12 @@ const PRODUCTS = [
     maxUsers: 1,
     price: 349,
     storages: ["s256", "s512", "s1024"],
-    accessories: ["sat", "zigbee", "support"],
-    highlights: ["Kompakt & leise — passt in jede Ecke", "Schnelle Antworten im Alltag", "Perfekt fürs Apartment", "Alle Daten bleiben im Gerät"],
+    accessories: ["kbd", "zigbee", "support"],
+    highlights: ["KI-Workspace: Schreiben, Planen & Lernen", "Home Kid-Basis-Modus inklusive", "Kompakt & leise — passt in jede Ecke", "Alle Daten bleiben im Gerät"],
     aiSize: "Kompaktes KI-Modell",
     speed: "Standard-Tempo",
-    desc: "Der Einstieg: ein treuer Helfer für deinen Tag."
+    kid: "Home Kid Basis",
+    desc: "Der Einstieg: dein persönlicher KI-Workspace."
   },
   {
     id: "pro",
@@ -279,11 +277,12 @@ const PRODUCTS = [
     maxUsers: 4,
     price: 599,
     storages: ["s256", "s512", "s1024", "s2048"],
-    accessories: ["sat", "zigbee", "cam", "support"],
-    highlights: ["Schnellere & bessere KI-Modelle", "Kamera-Bilderkennung — direkt im Gerät", "Erkennt jeden Bewohner einzeln", "Mehr Leistung für Familie & Homeoffice"],
+    accessories: ["kbd", "zigbee", "support"],
+    highlights: ["Schnellere & bessere KI-Modelle", "Home Kid mit Lernplänen & Hausaufgaben-Hilfe", "Getrennte Workspaces für bis zu 4 Personen", "Mehr Leistung für Familie & Homeoffice"],
     aiSize: "Mittleres KI-Modell",
     speed: "Schnell",
-    desc: "Der Familien-Copilot mit Bilderkennung."
+    kid: "Home Kid Plus (Lernpläne)",
+    desc: "Der Familien-Workspace mit Home Kid."
   },
   {
     id: "max",
@@ -292,10 +291,11 @@ const PRODUCTS = [
     maxUsers: 10,
     price: 999,
     storages: ["s512", "s1024", "s2048"],
-    accessories: ["sat", "zigbee", "cam", "support"],
-    highlights: ["Das leistungsstärkste Modell", "Für große Haushalte & Gewerbe", "Blitzschnelle Antworten", "RAID-Speicher für maximale Sicherheit"],
+    accessories: ["kbd", "zigbee", "support"],
+    highlights: ["Das leistungsstärkste Modell", "Bis zu 10 Workspaces gleichzeitig", "Home Kid mit Eltern-Dashboard", "RAID-Speicher für maximale Sicherheit"],
     aiSize: "Großes KI-Modell",
     speed: "Blitzschnell",
+    kid: "Home Kid Max (Eltern-Dashboard)",
     desc: "Maximale Leistung für viele Menschen."
   }
 ];
@@ -308,9 +308,8 @@ const STORAGES = {
 };
 
 const ACCESSORIES = {
-  sat: { name: "Voice-Satellit", price: 49, maxQty: 4, desc: "Sprachbedienung für weitere Räume — ganz ohne Handy. Pro Raum ein Satellit." },
+  kbd: { name: "Funk-Tastatur & Maus Set", price: 59, maxQty: 3, desc: "Kabelloses Arbeitsplatz-Set — verbindet sich automatisch mit dem Hub. Pro Arbeitsplatz ein Set." },
   zigbee: { name: "Smart-Home-Funkmodul (Zigbee & Matter)", price: 79, desc: "Steuert Lampen, Thermostate, Rollos & Co. direkt über den Hub." },
-  cam: { name: "Kamera-Paket", price: 129, desc: "Bilderkennung direkt im Gerät: Der Hub sieht, wer zu Hause ist — Bilder werden nie versendet." },
   support: { name: "Erweiterter Support", price: 99, desc: "48 Monate Garantie statt 24 + Prioritäts-Hotline (Mo–Sa, 8–20 Uhr)." }
 };
 
@@ -333,34 +332,34 @@ const COMPARE_ROWS = [
   { label: "KI-Modellgröße", key: "aiSize" },
   { label: "Antwortgeschwindigkeit", key: "speed" },
   { label: "Speicher-Optionen", key: "storageText" },
-  { label: "Kamera-Bilderkennung", key: "camText" },
+  { label: "Home Kid-Modus", key: "kid" },
   { label: "Zubehör-Kompatibilität", key: "accText" },
   { label: "Preis", key: "priceText" }
 ];
 
 const FAQ = [
-  { q: "Brauche ich Internet für den Home Hub?", a: "Nur zum Einrichten und für Updates. Danach läuft alles komplett offline — Sprachsteuerung, Bilderkennung, Smart Home. Ohne Internet funktioniert dein Hub einfach weiter." },
-  { q: "Wo genau liegen meine Daten?", a: "Auf der verschlüsselten Festplatte im Gerät, in deinem Wohnzimmer. Es gibt keine Cloud, keine Server von uns, keine Konten bei Dritten. Bei RAID 1 (2 TB) werden alle Daten zusätzlich gespiegelt." },
-  { q: "Was bedeutet „RAID 1 — gespiegelt“?", a: "Im Gerät arbeiten zwei Festplatten als Zwillinge: Jede Datei existiert immer zweimal. Fällt eine Platte aus, übernimmt sofort die andere — deine Fotos und Dokumente sind nicht weg." },
-  { q: "Kann die Kamera meine Bilder ins Internet senden?", a: "Nein. Die Bilderkennung läuft ausschließlich auf dem Prozessor im Gerät. Die Kamera hat zudem einen physischen Schalter, mit dem du sie komplett abschalten kannst." },
-  { q: "Hört der Hub mich ständig?", a: "Er lauscht nur auf sein Rufwort (z. B. „Hey Home Hub“). Das Mikrofon lässt sich per Hardware-Taster sofort stumm schalten — dann kann physisch nichts aufgezeichnet werden." },
-  { q: "Was passiert, wenn das Gerät defekt ist?", a: "Du bekommst ein repariertes Austauschgerät und ziehst deine verschlüsselte Festplatte einfach um — deine Daten und Profile wandern mit. Mit erweitertem Support gilt die Garantie 48 Monate." },
-  { q: "Kann ich später Speicher oder Zubehör aufrüsten?", a: "Ja. Zubehör wie Voice-Satelliten und das Funkmodul kannst du jederzeit nachkaufen. Den Speicher tauschst du über unseren Rüst-Service aus, ohne deine Daten zu verlieren." },
+  { q: "Brauche ich Internet für den Home Hub?", a: "Nur zum Einrichten und für Updates. Danach läuft alles komplett offline — der KI-Workspace, Home Kid und das Smart Home. Ohne Internet funktioniert dein Hub einfach weiter." },
+  { q: "Wo genau liegen meine Daten?", a: "Auf der verschlüsselten Festplatte im Gerät, bei dir zu Hause. Es gibt keine Cloud, keine Server von uns, keine Konten bei Dritten. Bei RAID 1 (2 TB) werden alle Daten zusätzlich gespiegelt." },
+  { q: "Was bedeutet „RAID 1 — gespiegelt“?", a: "Im Gerät arbeiten zwei Festplatten als Zwillinge: Jede Datei existiert immer zweimal. Fällt eine Platte aus, übernimmt sofort die andere — deine Dokumente und Projekte sind nicht weg." },
+  { q: "Was ist der Home Kid-Modus?", a: "Ein extra sicherer Bereich nur für Kinder: Hausaufgaben-Hilfe, Lernpläne, Lernkarten und eine Offline-Wissensbibliothek — kindgerecht erklärt, ohne Werbung, ohne Chats mit Fremden. Eltern behalten die Übersicht." },
+  { q: "Kann mein Kind damit ins Internet?", a: "Nein. Home Kid arbeitet komplett offline mit der im Gerät gespeicherten Wissensbibliothek. Es gibt keinen Browser, keine sozialen Medien und keine Kontaktaufnahme durch Fremde." },
+  { q: "Was kann der KI-Workspace?", a: "Texte schreiben und überarbeiten, zusammenfassen, übersetzen, Lernkarten erstellen, Pläne und Listen organisieren, E-Mails entwerfen — alles läuft direkt auf dem Gerät, nichts wird versendet." },
+  { q: "Was passiert, wenn das Gerät defekt ist?", a: "Du bekommst ein repariertes Austauschgerät und ziehst deine verschlüsselte Festplatte einfach um — deine Daten und Workspaces wandern mit. Mit erweitertem Support gilt die Garantie 48 Monate." },
+  { q: "Kann ich später Speicher oder Zubehör aufrüsten?", a: "Ja. Tastatur-Sets und das Smart-Home-Funkmodul kannst du jederzeit nachkaufen. Den Speicher tauschst du über unseren Rüst-Service aus, ohne deine Daten zu verlieren." },
   { q: "Funktioniert der Hub mit meinen Smart-Home-Geräten?", a: "Mit dem Funkmodul (Zigbee & Matter) steuert der Hub die meisten gängigen Geräte: Lampen, Thermostate, Rollos, Steckdosen und Sensoren von über 100 Marken." },
-  { q: "Fällt monatlich etwas an? Gibt es ein Abo?", a: "Nein. Du zahlst einmal für das Gerät — danach keine Kosten, kein Abo, keine versteckten Gebühren. Auch die Updates sind kostenlos." },
-  { q: "Wie viele Voice-Satelliten brauche ich?", a: "Faustregel: einer pro Raum, in dem du sprechen möchtest — z. B. Wohnzimmer, Küche und Schlafzimmer. Du startest mit einem und ergänzt jederzeit." }
+  { q: "Fällt monatlich etwas an? Gibt es ein Abo?", a: "Nein. Du zahlst einmal für das Gerät — danach keine Kosten, kein Abo, keine versteckten Gebühren. Auch die Updates sind kostenlos." }
 ];
 
 const HOW = [
   { n: "1", title: "Auspacken & anschließen", text: "Stecker in die Wand, Gerät einschalten. Mehr braucht es nicht — kein Handwerker, kein Kabelsalat." },
-  { n: "2", title: "QR-Code scannen", text: "Mit dem Handy den QR-Code auf dem Gerät scannen. In 2 Minuten sind alle Profile eingerichtet." },
-  { n: "3", title: "Fertig — los geht’s", text: "Sprich einfach los: „Hey Home Hub, was steht heute an?“ Dein Assistent lernt deinen Alltag — nur lokal." }
+  { n: "2", title: "QR-Code scannen", text: "Mit dem Handy den QR-Code auf dem Gerät scannen. In 2 Minuten sind alle Workspaces und Home Kid-Profile eingerichtet." },
+  { n: "3", title: "Fertig — los geht’s", text: "Öffne deinen Workspace und leg los: schreiben, planen, lernen. Für Kinder startet Home Kid mit einem Tipp auf das Kinder-Symbol." }
 ];
 
 const PRIVACY_POINTS = [
   "Keine Cloud, keine Server, keine Konten bei Dritten",
-  "Alle Profile getrennt & verschlüsselt pro Person",
-  "Mikrofon & Kamera mit physischem Hardware-Schalter",
+  "Alle Workspaces getrennt & verschlüsselt pro Person",
+  "Home Kid: ohne Internet, ohne Werbung, ohne Fremdkontakte",
   "Updates werden lokal geprüft und signiert installiert",
   "Verkauf oder Entsorgung? Ein Knopf löscht alles unwiderruflich",
   "Offen dokumentiert: Unser Sicherheits-Audit ist öffentlich einsehbar"
@@ -372,7 +371,7 @@ function App() {
   const [modelId, setModelId] = React.useState(null);
   const [storageId, setStorageId] = React.useState(null);
   const [profiles, setProfiles] = React.useState(1);
-  const [satQty, setSatQty] = React.useState(0);
+  const [kbdQty, setKbdQty] = React.useState(0);
   const [accOn, setAccOn] = React.useState({});
   const [form, setForm] = React.useState({ name: "", email: "", street: "", zip: "", city: "", pay: "invoice" });
   const [errors, setErrors] = React.useState({});
@@ -386,8 +385,8 @@ function App() {
   if (model) lines.push({ label: model.name + " (" + model.usersLabel + ")", add: model.price });
   if (storage) lines.push({ label: "Speicher: " + storage.label, add: storage.add });
   if (model && profiles > 1) lines.push({ label: profiles + " Nutzerprofile", add: 0 });
-  if (satQty > 0) lines.push({ label: satQty + "× Voice-Satellit", add: satQty * ACCESSORIES.sat.price });
-  model && model.accessories.filter(a => a !== "sat" && accOn[a]).forEach(a =>
+  if (kbdQty > 0) lines.push({ label: kbdQty + "× Funk-Tastatur & Maus Set", add: kbdQty * ACCESSORIES.kbd.price });
+  model && model.accessories.filter(a => a !== "kbd" && accOn[a]).forEach(a =>
     lines.push({ label: ACCESSORIES[a].name, add: ACCESSORIES[a].price })
   );
   const total = lines.reduce((s, l) => s + l.add, 0);
@@ -397,10 +396,10 @@ function App() {
     const m = PRODUCTS.find(p => p.id === id);
     setModelId(id);
     setProfiles(p => Math.min(p, m.maxUsers));
-    setSatQty(q => Math.min(q, m.accessories.includes("sat") ? 4 : 0));
+    setKbdQty(q => Math.min(q, 3));
     setAccOn(o => {
       const next = {};
-      m.accessories.filter(a => a !== "sat").forEach(a => { if (o[a]) next[a] = true; });
+      m.accessories.filter(a => a !== "kbd").forEach(a => { if (o[a]) next[a] = true; });
       return next;
     });
     if (!m.storages.includes(storageId)) setStorageId(null);
@@ -424,8 +423,8 @@ function App() {
     setSending(true);
     const result = await submitOrder({
       product: model.name, storage: storage.label, profiles,
-      voiceSatellites: satQty,
-      accessories: model.accessories.filter(a => a !== "sat" && accOn[a]).map(a => ACCESSORIES[a].name),
+      keyboardSets: kbdQty,
+      accessories: model.accessories.filter(a => a !== "kbd" && accOn[a]).map(a => ACCESSORIES[a].name),
       total, customer: form
     });
     setSending(false);
@@ -457,13 +456,13 @@ function App() {
       <header className="hero" id="top">
         <div className="wrap">
           <div>
-            <h1>Deine KI. <span>Deine Daten.</span><br/>Dein Zuhause.</h1>
-            <p className="sub">Home Hub ist der lokale KI-Assistent für zu Hause. Er spricht, sieht, plant und schaltet das Licht — und alles bleibt bei dir. Keine Cloud. Kein Abo. Keine Weitergabe.</p>
+            <h1>Dein KI-Workspace. <span>Deine Daten.</span><br/>Dein Zuhause.</h1>
+            <p className="sub">Home Hub ist der lokale KI-Workspace für zu Hause: schreiben, planen, lernen — und mit <b>Home Kid</b> ein sicherer Lernbereich für Kinder. Alles auf dem Gerät, ohne Cloud.</p>
             <div className="badges">
               <span className="badge">🔒 100 % lokal</span>
               <span className="badge">☁️ Keine Cloud</span>
               <span className="badge">💳 Kein Abo</span>
-              <span className="badge">👨‍👩‍👧 Bis 10 Personen</span>
+              <span className="badge">🧒 Home Kid-Modus</span>
             </div>
             <div className="cta-row">
               <a className="btn btn-primary" href="#konfigurator">Jetzt konfigurieren</a>
@@ -473,7 +472,7 @@ function App() {
           <div className="hero-art" aria-hidden="true">
             <div className="device">
               <div className="led"></div>
-              <div className="face"><div className="wave"><i></i><i></i><i></i><i></i><i></i></div></div>
+              <div className="face"><div className="dots"><i></i><i></i><i></i></div></div>
             </div>
           </div>
         </div>
@@ -541,20 +540,20 @@ function App() {
                 <h3><span className="stepnum" aria-hidden="true">4</span>Zubehör & Extras</h3>
                 <p className="hint">Alles optional — dein Hub funktioniert auch ohne.</p>
                 <div className="acc">
-                  {model && model.accessories.includes("sat") ? (
+                  {model && model.accessories.includes("kbd") ? (
                     <div className="accrow">
-                      <div className="info"><b>{ACCESSORIES.sat.name}</b><p>{ACCESSORIES.sat.desc}</p></div>
+                      <div className="info"><b>{ACCESSORIES.kbd.name}</b><p>{ACCESSORIES.kbd.desc}</p></div>
                       <div className="side">
-                        <span className="price-tag">{euro(ACCESSORIES.sat.price)} / Stk.</span>
+                        <span className="price-tag">{euro(ACCESSORIES.kbd.price)} / Stk.</span>
                         <div className="stepper">
-                          <button onClick={() => setSatQty(q => Math.max(0, q - 1))} disabled={satQty <= 0} aria-label="Weniger Voice-Satelliten">−</button>
-                          <div className="val" aria-live="polite">{satQty}<small>von max. 4</small></div>
-                          <button onClick={() => setSatQty(q => Math.min(4, q + 1))} disabled={satQty >= 4} aria-label="Mehr Voice-Satelliten">+</button>
+                          <button onClick={() => setKbdQty(q => Math.max(0, q - 1))} disabled={kbdQty <= 0} aria-label="Weniger Tastatur-Sets">−</button>
+                          <div className="val" aria-live="polite">{kbdQty}<small>von max. 3</small></div>
+                          <button onClick={() => setKbdQty(q => Math.min(3, q + 1))} disabled={kbdQty >= 3} aria-label="Mehr Tastatur-Sets">+</button>
                         </div>
                       </div>
                     </div>
                   ) : null}
-                  {model && model.accessories.filter(a => a !== "sat").map(a => (
+                  {model && model.accessories.filter(a => a !== "kbd").map(a => (
                     <div className="accrow" key={a}>
                       <div className="info"><b>{ACCESSORIES[a].name}</b><p>{ACCESSORIES[a].desc}</p></div>
                       <div className="side">
@@ -668,11 +667,10 @@ function App() {
                       <td>{r.label}</td>
                       {PRODUCTS.map(p => {
                         const v = r.key === "storageText" ? p.storages.map(s => STORAGES[s].label.replace(" (RAID 1)", "")).join(", ")
-                          : r.key === "camText" ? (p.accessories.includes("cam") ? "Ja" : "Nein")
                           : r.key === "accText" ? p.accessories.map(a => ACCESSORIES[a].name.split(" (")[0]).join(", ")
                           : r.key === "priceText" ? "ab " + euro(p.price)
                           : p[r.key];
-                        return <td key={p.id} className={r.key === "camText" ? (p.accessories.includes("cam") ? "yes" : "no") : ""}>{v}</td>;
+                        return <td key={p.id}>{v}</td>;
                       })}
                     </tr>
                   ))}
@@ -729,7 +727,7 @@ function App() {
         <div className="wrap">
           <div>
             <div className="flogo">🔒 Home Hub</div>
-            <p style={{ fontSize: ".85rem", marginTop: 6 }}>Deine KI. Deine Daten. Dein Zuhause.</p>
+            <p style={{ fontSize: ".85rem", marginTop: 6 }}>Dein KI-Workspace. Deine Daten. Dein Zuhause.</p>
           </div>
           <nav aria-label="Rechtliches">
             <a href="#" title="Platzhalter">Impressum</a>
